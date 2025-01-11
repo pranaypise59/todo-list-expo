@@ -8,6 +8,20 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+// Define the type for the color prop
+type TabBarIconProps = {
+  color: string;
+};
+
+// Define the tabBarIcon components outside of the TabLayout component with explicit types
+const HomeTabBarIcon: React.FC<TabBarIconProps> = ({ color }) => (
+  <IconSymbol size={28} name="house.fill" color={color} />
+);
+
+const CompletedTabBarIcon: React.FC<TabBarIconProps> = ({ color }) => (
+  <IconSymbol size={28} name="checkmark.circle.fill" color={color} />
+);
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -30,14 +44,14 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: HomeTabBarIcon,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="completed"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Completed',
+          tabBarIcon: CompletedTabBarIcon,
         }}
       />
     </Tabs>
