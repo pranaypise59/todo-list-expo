@@ -48,73 +48,93 @@ const HomeScreen = () => {
     }
   };
 
-  // Filter tasks for HomeScreen
-  const filteredTasks = useMemo(() => {
+  // Filter and organize tasks
+  const { incompleteTasks, completedTasks } = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    return tasks.filter(task => 
-      !task.completed || 
+
+    const tasksToday = tasks.filter(task =>
+      !task.completed ||
       (task.completedAt && task.completedAt >= today)
-    ).sort((a, b) => b.lastEditedAt.getTime() - a.lastEditedAt.getTime());
+    );
+
+    // Separate completed and incomplete tasks
+    const incomplete = tasksToday.filter(task => !task.completed);
+    const completed = tasksToday.filter(task => task.completed);
+
+    // Sort incomplete tasks by lastEditedAt
+    incomplete.sort((a, b) => b.lastEditedAt.getTime() - a.lastEditedAt.getTime());
+
+    return {
+      incompleteTasks: incomplete,
+      completedTasks: completed
+    };
   }, [tasks]);
 
-  const renderItem: React.FC<{ item: Task }> = ({ item }) => (
-    <View style={styles.taskItem}>
-      <TouchableOpacity
-        onPress={() => toggleComplete(item.id)}
-        style={[styles.checkbox, item.completed && styles.checkboxChecked]}
-      >
-        {item.completed && <Feather name="check" size={16} color="white" />}
-      </TouchableOpacity>
+  const renderItem = ({ item, index }: { item: Task; index: number }) => {
+    // Show header before first completed task
+    const showCompletedHeader = index === incompleteTasks.length && completedTasks.length > 0;
 
-      <View style={styles.taskContent}>
-        {editingTask?.id === item.id ? (
-          <TextInput
-            style={styles.editInput}
-            value={editingTask?.value}
-            onChangeText={(text) => setEditingTask({ ...editingTask, value: text })}
-            onBlur={handleUpdateTask}
-            onSubmitEditing={handleUpdateTask}
-            autoFocus
-          />
-        ) : (
-          <>
-            <Text style={[styles.taskText, item.completed && styles.completedTask]}>
-              {item.value}
-            </Text>
-            <Text style={styles.dateText}>
-              Created: {format(new Date(item.createdAt), 'dd MMM yyyy')}
-            </Text>
-          </>
+    return (
+      <>
+        {showCompletedHeader && (
+          <Text style={styles.sectionHeader}>Completed Today</Text>
         )}
-      </View>
-
-      <View style={styles.actionButtons}>
-        {!item.completed && (
+        <View style={styles.taskItem}>
           <TouchableOpacity
-            onPress={() => startEditing(item.id, item.value)}
-            style={styles.actionButton}
+            onPress={() => toggleComplete(item.id)}
+            style={[styles.checkbox, item.completed && styles.checkboxChecked]}
           >
-            <Feather name="edit-2" size={18} color="#666" />
+            {item.completed && <Feather name="check" size={16} color="white" />}
           </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          onPress={() => handleDeleteTask(item.id)}
-          style={styles.actionButton}
-        >
-          <Feather name="trash-2" size={18} color="#ff4444" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 
+          <View style={styles.taskContent}>
+            {editingTask?.id === item.id ? (
+              <TextInput
+                style={styles.editInput}
+                value={editingTask?.value}
+                onChangeText={(text) => setEditingTask({ ...editingTask, value: text })}
+                onBlur={handleUpdateTask}
+                onSubmitEditing={handleUpdateTask}
+                autoFocus
+              />
+            ) : (
+              <>
+                <Text style={[styles.taskText, item.completed && styles.completedTask]}>
+                  {item.value}
+                </Text>
+                <Text style={styles.dateText}>
+                  Created: {format(new Date(item.createdAt), 'dd MMM yyyy')}
+                </Text>
+              </>
+            )}
+          </View>
 
+          <View style={styles.actionButtons}>
+            {!item.completed && (
+              <TouchableOpacity
+                onPress={() => startEditing(item.id, item.value)}
+                style={styles.actionButton}
+              >
+                <Feather name="edit-2" size={18} color="#666" />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={() => handleDeleteTask(item.id)}
+              style={styles.actionButton}
+            >
+              <Feather name="trash-2" size={18} color="#ff4444" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Today's Tasks</Text>
-      
+
       <View style={styles.inputContainer}>
         <TextInput
           placeholder='Add your Task'
@@ -130,8 +150,8 @@ const HomeScreen = () => {
       </View>
 
       <FlatList
-        data={filteredTasks}
-        renderItem={renderItem as any}
+        data={[...incompleteTasks, ...completedTasks]}
+        renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.taskList}
         showsVerticalScrollIndicator={false}
@@ -142,6 +162,7 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -242,5 +263,12 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 20,
     fontSize: 16,
+  },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#333',
   }
 });

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "todo-list-expo",
-    "slug": "todo-list-expo",
-    "version": "1.0.0",
+    "name": "DailyDo: Todo List",
+    "slug": "daily-do-todo-list",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -24,16 +24,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true
